@@ -44,7 +44,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            npm install
+            npm install --save-dev standard-version@9.3.1
             npm run build
            
       - save_cache:
@@ -62,7 +62,7 @@ jobs:
           name: Back-end build
           command: |
              cd backend
-             npm install
+             npm install --save-dev standard-version@9.3.1
              npm run build
              
       - save_cache:

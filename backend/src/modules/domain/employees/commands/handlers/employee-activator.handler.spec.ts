@@ -15,25 +15,25 @@ describe('Employee Remover', () => {
     const employeeRepository = new MockEmployeeRepository();
 
     it('should activate the employee from the repository', async () => {
-      // Arrange
-      const handler = new EmployeeActivator(employeeRepository);
+      
+        const handler = new EmployeeActivator(employeeRepository);
 
-      const params = {
-        employeeId: 101, //change this to 100 to make the test pass
-        isActive: false,
-      };
+        const params = {
+          employeeId: 100, 
+          isActive: false,
+        };
 
-      const activateEmployeeCommand = new ActivateEmployee(
-        params.employeeId,
-        params.isActive,
-      );
+        const activateEmployeeCommand = new ActivateEmployee(
+          params.employeeId,
+          params.isActive,
+        );
 
-      // Act
-      await handler.handle(activateEmployeeCommand);
+        // Act
+        await handler.handle(activateEmployeeCommand);
 
-      // Assert
-      expect(employeeRepository.findById).toBeCalledWith(100);
-      expect(employeeRepository.save).toBeCalled();
+        // Assert
+        expect(employeeRepository.findById).toBeCalledWith(100);
+        expect(employeeRepository.save).toBeCalled();
     });
   });
 });

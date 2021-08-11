@@ -3,13 +3,13 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-    #   stack1:
-    #     description: backend stack
-    #     type: string
-    #   stack2:
-    #     description: frontend stack
-    #     type: string 
+    parameters:
+      stack1:
+        description: backend stack
+        type: string
+      stack2:
+        description: frontend stack
+        type: string 
     steps:
       - run:
           name: Destroy environments
@@ -162,11 +162,11 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      
+      - run: return 1 
       - destroy-environment
-          # stack1: "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}"
-          # stack2: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"
-          
+          stack1: "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}"
+          stack2: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"
+        
         
   # configure-infrastructure:
   #   docker:
@@ -315,9 +315,9 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
+          # filters:
+          #   branches:
+          #     only: [test-feature-branch]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:

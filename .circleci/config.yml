@@ -171,24 +171,26 @@ jobs:
           from: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"
         
         
-  # configure-infrastructure:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["d7:9a:32:1e:82:86:6a:8a:51:c5:cd:70:36:cc:d8:13"]
+      - attach_workspace:
+          at: project/.circleci/ansible/inventory.txt 
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook ansible/configure-server.yml
+      - destroy-environment
+          to: "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}"
+          from: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"  
 
   # run-migrations:
   #   docker:

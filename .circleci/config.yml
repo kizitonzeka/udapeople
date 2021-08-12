@@ -188,7 +188,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook ansible/configure-server.yml
-      - destroy-environment
+      - destroy-environment:
           to: "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}"
           from: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"  
 

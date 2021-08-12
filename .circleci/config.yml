@@ -157,15 +157,16 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - run: 
           name: Install tar and gzip
           command: |
             yum install -y tar
             yum install -y gzip
       - persist_to_workspace:
-          root: .circleci/ansible/
+          root: ~/
           paths:
-            - inventory.txt 
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           to: "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}"
           from: "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}"
@@ -179,7 +180,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["d7:9a:32:1e:82:86:6a:8a:51:c5:cd:70:36:cc:d8:13"]
       - attach_workspace:
-          at: .circleci/ansible/ 
+          at: ~/
       - run:
           name: Install dependencies
           command: |

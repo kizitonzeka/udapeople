@@ -27,6 +27,7 @@ commands:
           when: on_fail
           command: |
             SUCCESS = curl -H "token: f9e86465-c8d3-4571-a2a1-53a9778a2ec9" --request GET https://api.memstash.io/values/migrations-${CIRCLE_WORKFLOW_ID}
+            echo $SUCCESS
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend

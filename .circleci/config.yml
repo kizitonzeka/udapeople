@@ -155,7 +155,7 @@ jobs:
           command: |
             Backend_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=Backend" \
+              --filters "Name=tag-value,Values=Backend" \
               --output text)
             echo $Backend_IP
             if [ -z "$Backend_IP"]

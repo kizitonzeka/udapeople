@@ -263,9 +263,10 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP = $(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/Backend_IP)
+            echo $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            echo "${API_URL}" >> .env || echo "${API_URL}" > .env
+           
             
       - run:
           name: Deploy frontend objects
@@ -282,17 +283,20 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [ 'd1:2a:7e:fa:21:e1:43:12:85:2f:f3:ac:67:65:8f:17' ]
+       - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk add --update ansible
+            pip install awscli
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
   # smoke-test:

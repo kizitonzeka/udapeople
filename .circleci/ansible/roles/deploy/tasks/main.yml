@@ -1,0 +1,38 @@
+---
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: "yes"
+
+- name: "Copy backend tar.gz file and unzipping it"
+  become: yes
+  unarchive:
+    src: ~/project/backend.tar.gz
+    dest: /home/ubuntu
+
+- name: "installing dependencies"
+  become: yes
+  npm:
+    path: /home/ubuntu/backend
+
+- name: "run migration"
+  become: yes
+  shell: npm run migrations
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "reboot server"
+  become: yes
+  reboot:
+
+- name: "initialize pm2"
+  become: yes
+  shell: pm2 ls
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "start pm2"
+  become: yes
+  shell: pm2 start --name "backend" npm -- start
+  args:
+    chdir: /home/ubuntu/backend

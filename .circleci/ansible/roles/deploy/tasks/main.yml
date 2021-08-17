@@ -10,29 +10,18 @@
     src: ~/project/backend.tar.gz
     dest: /home/ubuntu
 
-- name: "installing dependencies"
+- name: "Build artifact and run migrations"
   become: yes
+  shell: |
+    npm audit fix
+    npm run build
+    npm run migrations
   npm:
     path: /home/ubuntu/backend
 
-- name: "run migration"
+- name: "Start pm2"
   become: yes
-  shell: npm run migrations
-  args:
-    chdir: /home/ubuntu/backend
-
-- name: "reboot server"
-  become: yes
-  reboot:
-
-- name: "initialize pm2"
-  become: yes
-  shell: pm2 ls
-  args:
-    chdir: /home/ubuntu/backend
-
-- name: "start pm2"
-  become: yes
-  shell: pm2 start --name "backend" npm -- start
-  args:
-    chdir: /home/ubuntu/backend
+  shell: |
+    pm2 start npm --name backend -- start
+  npm:
+    path: /home/ubuntu/backend/.dist

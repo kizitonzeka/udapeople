@@ -258,19 +258,21 @@ jobs:
             yum install nodejs npm -y
             cd frontend
             npm install 
-            npm audit fix
-            npm run build
 
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP = ${curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/Backend_IP}
+            BACKEND_IP = $(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/Backend_IP)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo "${API_URL}" >> .env || echo "${API_URL}" > .env
+            
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
+            npm audit fix
+            npm run build
             aws s3 cp dist/ s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}"

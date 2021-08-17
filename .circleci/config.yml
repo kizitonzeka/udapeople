@@ -149,7 +149,8 @@ jobs:
               --tags project=udapeople \
               --stack-name "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
-      - run: Add back-end IP to memstash
+      - run: 
+          name: Add back-end IP to memstash
           command: |
             yum install curl -y
             Backend_IP = ${aws ec2 describe-instances \

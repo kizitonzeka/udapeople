@@ -13,15 +13,10 @@
 - name: "Build artifact and run migrations"
   become: yes
   shell: |
+    cd /home/ubuntu/backend
     npm audit fix
     npm run build
     npm run migrations
-  npm:
-    path: /home/ubuntu/backend
-
-- name: "Start pm2"
-  become: yes
-  shell: |
+    cd .dist
     pm2 start npm --name backend -- start
-  npm:
-    path: /home/ubuntu/backend/.dist
+    

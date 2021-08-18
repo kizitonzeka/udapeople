@@ -138,7 +138,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags Name=Backend \
+              --tags project=udapeople, Name=Backend \
               --stack-name "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"        
       - run: 
@@ -159,7 +159,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags Name=Frontend \
+              --tags project=udapeople, Name=Frontend \
               --stack-name "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
      
@@ -338,29 +338,40 @@ jobs:
             else
               return 0
             fi
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID}"
+      # - destroy-environment:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID}"
       - revert-migrations
 
-  # cloudfront-update:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           yum install -y gzip tar
-  #     - run:
-  #         name: Update cloudfront distribution
-  #         command: |
-  #           #check old stacks 
-  #           export OldWorkflowID=$(aws cloudformation \
-  #             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-  #             --no-paginate --output text)
-  #           export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-  #             --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-      # Here's where you will add some code to rollback on failure  
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y gzip tar
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            #check old stacks 
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+
+            #Save on memstash
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${OldWorkflowID}" https://api.memstash.io/values/OldWorkflowID
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${STACKS}" https://api.memstash.io/values/STACKS
+
+            #Deploy cloudfront
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name cloudfront-cdn \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID} \
+              --tags project=udapeople
 
   # cleanup:
   #     docker:

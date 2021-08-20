@@ -232,6 +232,7 @@ jobs:
             cat .env
             npm install 
             npm run migrations > migrations-${CIRCLE_WORKFLOW_ID}.txt
+            npm run build
       - run:
           name: Send migration results to memstash
           command: |
@@ -268,7 +269,6 @@ jobs:
             echo "${API_URL}"
             echo API_URL=$API_URL > .env
             cd frontend
-            npm audit fix
             npm run build
             aws s3 cp dist/ s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
       - destroy-environment:

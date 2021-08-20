@@ -4,19 +4,30 @@
   apt:
     upgrade: "yes"
 
-- name: "Copy backend tar.gz file and unzipping it"
+- name: "copy backend tar.gz file and unzipping it"
   become: yes
   unarchive:
     src: ~/project/backend.tar.gz
     dest: /home/ubuntu
 
-- name: "Build artifact and run migrations"
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    update_cache: yes
+
+- name: "reboot server"
   become: yes
-  shell: |
-    cd /home/ubuntu/backend
-    npm audit fix
-    npm run build
-    npm run migrations
-    cd .dist
-    pm2 start npm --name backend -- start
-    
+  reboot:
+
+- name: "initialize pm2"
+  become: yes
+  shell: pm2 ls
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "start pm2"
+  become: yes
+  shell: pm2 start --name "backend" npm -- start
+  args:
+    chdir: /home/ubuntu/backend

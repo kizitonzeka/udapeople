@@ -16,16 +16,10 @@
     name: ["nodejs", "npm"]
     update_cache: yes
 
-- name: "Build artifact and run migrations"
+- name: "Build artifact"
   become: yes
   shell: |
-    npm run migrations
+    cd backend
     npm run build
-  args:
-    chdir: /home/ubuntu/backend
-
-- name: "start pm2"
-  become: yes
-  shell: pm2 start --name "backend" npm -- start
-  args:
-    chdir: /home/ubuntu/backend
+    ls -la
+    pm2 start --name "backend" npm -- start

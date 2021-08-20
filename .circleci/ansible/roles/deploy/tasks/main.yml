@@ -16,10 +16,6 @@
     name: ["nodejs", "npm"]
     update_cache: yes
 
-- name: "reboot server"
-  become: yes
-  reboot:
-
 - name: "initialize pm2"
   become: yes
   shell: pm2 ls

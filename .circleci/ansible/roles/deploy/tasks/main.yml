@@ -10,16 +10,10 @@
     src: ~/project/backend.tar.gz
     dest: /home/ubuntu
 
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    update_cache: yes
-
 - name: "Build artifact"
   become: yes
   shell: |
     cd backend
-    npm run build
-    ls -la
+    npm install
+    npm run migrations
     pm2 start --name "backend" npm -- start

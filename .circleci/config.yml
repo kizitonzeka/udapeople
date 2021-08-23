@@ -138,13 +138,24 @@ jobs:
   #         command: |
   #           aws cloudformation deploy \
   #             --template-file .circleci/files/backend.yml \
-  #             --tags project=udapeople, Name=Backend \
+  #             --tags project=udapeople-${CIRCLE_WORKFLOW_ID} \
   #             --stack-name "udapeople-backendstack-${CIRCLE_WORKFLOW_ID}" \
   #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"        
-  #     - run: 
+  #    
+  #     - run:
+  #         name: Ensure front-end infrastructure exist
+  #         command: |
+  #           aws cloudformation deploy \
+  #             --template-file .circleci/files/frontend.yml \
+  #             --tags project=udapeople-${CIRCLE_WORKFLOW_ID}\
+  #             --stack-name "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}" \
+  #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+     
+        #  - run: 
   #         name: Add back-end IP to memstash
   #         command: |
   #           Backend_IP=$(aws ec2 describe-instances \
+  #             --filters Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID}\
   #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
   #             --output text)
   #           echo $Backend_IP
@@ -154,15 +165,6 @@ jobs:
   #           else
   #            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "$Backend_IP" https://api.memstash.io/values/Backend_IP
   #           fi
-  #     - run:
-  #         name: Ensure front-end infrastructure exist
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/files/frontend.yml \
-  #             --tags project=udapeople, Name=Frontend \
-  #             --stack-name "udapeople-frontendstack-${CIRCLE_WORKFLOW_ID}" \
-  #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
-     
   #     - run:
   #         name: Add back-end ip to ansible inventory
   #         command: |
@@ -383,10 +385,9 @@ jobs:
         - run:
             name: Get old stack workflow id
             command: |
-              
-              OldWorkflowID= $(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/OldWorkflowID)
-              STACKS= $(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/STACKS)
-              if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+              OldWorkflowID=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/OldWorkflowID)
+              STACKS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/STACKS)
+              if [ "${STACKS[@]}" =~ "${OldWorkflowID}" ]
               then        
                 aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
                 aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
